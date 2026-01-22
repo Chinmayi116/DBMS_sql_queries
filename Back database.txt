@@ -1,0 +1,138 @@
+-- Table: Bank
+CREATE TABLE Bank (
+    BankCode INT PRIMARY KEY,
+    BankName VARCHAR(100),
+    Address VARCHAR(200),
+    Phone VARCHAR(15)
+);
+
+-- Table: Branch
+CREATE TABLE Branch (
+    BranchId INT PRIMARY KEY,
+    BankCode INT,
+    BranchName VARCHAR(100),
+    Address VARCHAR(200),
+    Phone VARCHAR(15),
+    City VARCHAR(50),
+    FOREIGN KEY (BankCode) REFERENCES Bank(BankCode)
+);
+
+-- Table: Customer
+CREATE TABLE Customer (
+    SSN INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Address VARCHAR(200),
+    Phone VARCHAR(15),
+    Age INT
+);
+
+-- Table: Account
+CREATE TABLE Account (
+    AccountNo INT PRIMARY KEY,
+    BranchId INT,
+    AccountType VARCHAR(50),
+    Balance DECIMAL(10,2),
+    FOREIGN KEY (BranchId) REFERENCES Branch(BranchId)
+);
+
+-- Junction Table: Account_Customer (for joint accounts)
+CREATE TABLE Account_Customer (
+    AccountNo INT,
+    SSN INT,
+    PRIMARY KEY(AccountNo, SSN),
+    FOREIGN KEY (AccountNo) REFERENCES Account(AccountNo),
+    FOREIGN KEY (SSN) REFERENCES Customer(SSN)
+);
+
+-- Table: Loan
+CREATE TABLE Loan (
+    LoanNo INT PRIMARY KEY,
+    LoanType VARCHAR(50),
+    DurationMonths INT,
+    InterestRate DECIMAL(5,2)
+);
+
+-- Junction Table: Loan_Customer
+CREATE TABLE Loan_Customer (
+    LoanNo INT,
+    SSN INT,
+    PRIMARY KEY(LoanNo, SSN),
+    FOREIGN KEY (LoanNo) REFERENCES Loan(LoanNo),
+    FOREIGN KEY (SSN) REFERENCES Customer(SSN)
+);
+
+-- Insert Banks 
+INSERT INTO Bank VALUES (1, 'State Bank', 'MG Road, Hubli', '0836-1234567');
+INSERT INTO Bank VALUES (2, 'ICICI Bank', 'Main Road, Hubli', '0836-7654321');
+INSERT INTO Bank VALUES (3, 'HDFC Bank', 'Indira Nagar, Hubli', '0836-9876543');
+INSERT INTO Bank VALUES (4, 'Axis Bank', 'Kamal Park, Hubli', '0836-2468101');
+INSERT INTO Bank VALUES (5, 'Canara Bank', 'Gokul Road, Hubli', '0836-1357911');
+
+-- Insert Branches 
+INSERT INTO Branch VALUES (101, 1, 'SB Hubli Main', 'MG Road, Hubli', '0836-1111111', 'Hubli');
+INSERT INTO Branch VALUES (102, 1, 'SB Hubli East', 'East Side, Hubli', '0836-2222222', 'Hubli');
+INSERT INTO Branch VALUES (201, 2, 'ICICI Hubli Main', 'Main Road, Hubli', '0836-3333333', 'Hubli');
+INSERT INTO Branch VALUES (301, 3, 'HDFC Hubli West', 'West Side, Hubli', '0836-4444444', 'Hubli');
+INSERT INTO Branch VALUES (401, 4, 'Axis Hubli North', 'North Side, Hubli', '0836-5555555', 'Hubli');
+INSERT INTO Branch VALUES (501, 5, 'Canara Hubli South', 'South Side, Hubli', '0836-6666666', 'Hubli');
+
+-- Insert Customers 
+INSERT INTO Customer VALUES (1001, 'Alice', 'MG Road, Hubli', '9999999991', 30);
+INSERT INTO Customer VALUES (1002, 'Bob', 'East Side, Hubli', '9999999992', 28);
+INSERT INTO Customer VALUES (1003, 'Charlie', 'West Side, Hubli', '9999999993', 35);
+INSERT INTO Customer VALUES (1004, 'David', 'North Side, Hubli', '9999999994', 40);
+INSERT INTO Customer VALUES (1005, 'Eve', 'South Side, Hubli', '9999999995', 25);
+
+-- Insert Accounts
+INSERT INTO Account VALUES (5001, 101, 'Savings', 50000);
+INSERT INTO Account VALUES (5002, 102, 'Checking', 30000);
+INSERT INTO Account VALUES (5003, 201, 'Savings', 45000);
+INSERT INTO Account VALUES (5004, 301, 'Current', 60000);
+INSERT INTO Account VALUES (5005, 401, 'Savings', 70000);
+
+-- Insert Account-Customer 
+INSERT INTO Account_Customer VALUES (5001, 1001);  -- Alice
+INSERT INTO Account_Customer VALUES (5001, 1002);  -- Bob (joint)
+INSERT INTO Account_Customer VALUES (5002, 1002);  -- Bob
+INSERT INTO Account_Customer VALUES (5003, 1003);  -- Charlie
+INSERT INTO Account_Customer VALUES (5004, 1004);  -- David
+INSERT INTO Account_Customer VALUES (5005, 1005);  -- Eve
+INSERT INTO Account_Customer VALUES (5004, 1005);  -- Eve & David joint
+
+-- Insert Loans 
+INSERT INTO Loan VALUES (9001, 'Home Loan', 120, 12.5);
+INSERT INTO Loan VALUES (9002, 'Car Loan', 60, 14.0);
+INSERT INTO Loan VALUES (9003, 'Personal Loan', 36, 16.0);
+INSERT INTO Loan VALUES (9004, 'Education Loan', 48, 13.5);
+INSERT INTO Loan VALUES (9005, 'Business Loan', 84, 10.0);
+
+-- Insert Loan-Customer
+INSERT INTO Loan_Customer VALUES (9001, 1001);  -- Alice
+INSERT INTO Loan_Customer VALUES (9002, 1002);  -- Bob
+INSERT INTO Loan_Customer VALUES (9003, 1003);  -- Charlie
+INSERT INTO Loan_Customer VALUES (9004, 1004);  -- David
+INSERT INTO Loan_Customer VALUES (9005, 1005);  -- Eve
+INSERT INTO Loan_Customer VALUES (9002, 1005);  -- Bob & Eve joint loan
+
+1. List details of customers who have joint accounts and also have at least one loan:
+SELECT DISTINCT C.SSN, C.Name, C.Address, C.Phone
+FROM Customer C
+JOIN Account_Customer AC ON C.SSN = AC.SSN
+JOIN Account A ON AC.AccountNo = A.AccountNo
+JOIN Account_Customer AC2 ON A.AccountNo = AC2.AccountNo
+JOIN Loan_Customer LC ON C.SSN = LC.SSN
+WHERE AC.AccountNo = AC2.AccountNo
+  AND AC.SSN <> AC2.SSN;
+
+2.Write an Sql query to find the minimum and maximum loan amounts from loans table for loans with an with interest rate < 15%
+SELECT MIN(LoanNo) AS MinLoan, MAX(LoanNo) AS MaxLoan
+FROM Loan
+WHERE InterestRate < 15;
+
+3.Retrieve names of customers who have accounts in all branches located in a specific city
+SELECT C.Name, B.BranchName
+FROM Customer C
+JOIN Account_Customer AC ON C.SSN = AC.SSN
+JOIN Account A ON AC.AccountNo = A.AccountNo
+JOIN Branch B ON A.BranchId = B.BranchId
+WHERE B.City = 'Hubli';

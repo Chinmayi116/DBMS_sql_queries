@@ -1,0 +1,90 @@
+CREATE TABLE Branch (
+    Branchid INT PRIMARY KEY,
+    Branchname VARCHAR(50)
+);
+
+CREATE TABLE Student (
+    USN VARCHAR(10) PRIMARY KEY,
+    Name VARCHAR(50),
+    Address VARCHAR(100),
+    Branchid INT,
+    Sem INT,
+    FOREIGN KEY (Branchid) REFERENCES Branch(Branchid)
+);
+
+CREATE TABLE Author (
+    Authorid INT PRIMARY KEY,
+    Authorname VARCHAR(50),
+    Country VARCHAR(30),
+    Age INT
+);
+
+CREATE TABLE Book (
+    Bookid INT PRIMARY KEY,
+    Bookname VARCHAR(50),
+    Authorid INT,
+    Publisher VARCHAR(50),
+    Branchid INT,
+    FOREIGN KEY (Authorid) REFERENCES Author(Authorid),
+    FOREIGN KEY (Branchid) REFERENCES Branch(Branchid)
+);
+
+CREATE TABLE Borrow (
+    USN VARCHAR(10),
+    Bookid INT,
+    Borrowed_Date DATE,
+    PRIMARY KEY (USN, Bookid),
+    FOREIGN KEY (USN) REFERENCES Student(USN),
+    FOREIGN KEY (Bookid) REFERENCES Book(Bookid)
+);
+
+INSERT INTO Branch VALUES (1, 'Computer Science');
+INSERT INTO Branch VALUES (2, 'Electronics');
+INSERT INTO Branch VALUES (3, 'Mechanical');
+INSERT INTO Branch VALUES (4, 'Civil');
+INSERT INTO Branch VALUES (5, 'Information Science');
+
+INSERT INTO Student VALUES ('S001', 'Asha', 'Hubli', 1, 4);
+INSERT INTO Student VALUES ('S002', 'Ravi', 'Dharwad', 1, 6);
+INSERT INTO Student VALUES ('S003', 'Meena', 'Belgaum', 2, 5);
+INSERT INTO Student VALUES ('S004', 'Kiran', 'Hubli', 3, 3);
+INSERT INTO Student VALUES ('S005', 'Anita', 'Bijapur', 4, 2);
+
+INSERT INTO Author VALUES (101, 'Dennis Ritchie', 'USA', 70);
+INSERT INTO Author VALUES (102, 'James Gosling', 'Canada', 68);
+INSERT INTO Author VALUES (103, 'Bjarne Stroustrup', 'Denmark', 73);
+INSERT INTO Author VALUES (104, 'Guido van Rossum', 'Netherlands', 67);
+INSERT INTO Author VALUES (105, 'Herbert Schildt', 'USA', 72);
+
+INSERT INTO Book VALUES (201, 'C Programming', 101, 'PHI', 1);
+INSERT INTO Book VALUES (202, 'Java Programming', 102, 'Pearson', 1);
+INSERT INTO Book VALUES (203, 'C++ Programming', 103, 'McGraw Hill', 2);
+INSERT INTO Book VALUES (204, 'Python Basics', 104, 'OReilly', 5);
+INSERT INTO Book VALUES (205, 'Advanced Java', 105, 'Pearson', 1);
+
+INSERT INTO Borrow VALUES ('S001', 201, '2025-01-01');
+INSERT INTO Borrow VALUES ('S001', 202, '2025-01-05');
+INSERT INTO Borrow VALUES ('S002', 201, '2025-01-03');
+INSERT INTO Borrow VALUES ('S002', 203, '2025-01-06');
+INSERT INTO Borrow VALUES ('S002', 205, '2025-01-08');
+
+1)List students who have NOT borrowed any books
+--With join query
+SELECT S.USN, S.Name, S.Address, S.Sem FROM Student S LEFT JOIN Borrow B ON S.USN = B.USN WHERE B.Bookid IS NULL;
+
+--Without join
+SELECT  S.USN, S.Name, S.Address, S.Sem FROM Student S WHERE USN NOT IN (SELECT USN FROM Borrow);
+
+2)Display student details who borrowed more than two books
+--With join
+SELECT S.USN, S.Name, S.Address, S.Sem FROM Student S JOIN Borrow B ON S.USN = B.USN GROUP BY S.USN, S.Name, S.Address, S.Sem HAVING COUNT(B.Bookid) > 2;
+
+--Without join
+SELECT USN, Name, Address, Sem FROM Student WHERE USN IN ( SELECT USN FROM Borrow GROUP BY USN HAVING COUNT(Bookid) > 2);
+
+3)Display student details who borrowed books of more than one author
+--With join
+SELECT S.USN, S.Name, S.Address, S.Sem FROM Student S JOIN Borrow B ON S.USN = B.USN JOIN Book BK ON B.Bookid = BK.Bookid GROUP BY S.USN, S.Name, S.Address, S.Sem HAVING COUNT(DISTINCT BK.Authorid) > 1;
+
+--Without join
+SELECT USN, Name, Address, Sem FROM Student WHERE USN IN ( SELECT USN FROM Borrow GROUP BY USN HAVING COUNT(Bookid) > 2);
