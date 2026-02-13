@@ -1,0 +1,230 @@
+CREATE TABLE BANK (
+    B_Code INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Address VARCHAR(100),
+    Phone VARCHAR(15)
+);
+Table created.
+
+INSERT INTO BANK VALUES (1, 'SBI', 'Mumbai', '1111111111');
+INSERT INTO BANK VALUES (2, 'HDFC', 'Delhi', '2222222222');
+INSERT INTO BANK VALUES (3, 'ICICI', 'Chennai', '3333333333');
+INSERT INTO BANK VALUES (4, 'AXIS', 'Bangalore', '4444444444');
+INSERT INTO BANK VALUES (5, 'PNB', 'Kolkata', '5555555555');
+
+set linesize 200;
+SQL> select * from BANK;
+
+    B_CODE NAME                                               ADDRESS                                                                                              PHONE
+---------- -------------------------------------------------- ---------------------------------------------------------------------------------------------------- ---------------
+         1 SBI                                                Mumbai                                                                                               1111111111
+         2 HDFC                                               Delhi                                                                                                2222222222
+         3 ICICI                                              Chennai                                                                                              3333333333
+         4 AXIS                                               Bangalore                                                                                            4444444444
+         5 PNB                                                Kolkata                                                                                              5555555555
+
+
+CREATE TABLE BRANCH (
+    Br_Code INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Address VARCHAR(100),
+    Phone VARCHAR(15),
+    B_Code INT,
+    FOREIGN KEY (B_Code) REFERENCES BANK(B_Code)
+);
+
+INSERT INTO BRANCH VALUES (101, 'SBI Main', 'Mumbai', '9000000001', 1);
+INSERT INTO BRANCH VALUES (102, 'HDFC Central', 'Delhi', '9000000002', 2);
+INSERT INTO BRANCH VALUES (103, 'ICICI North', 'Chennai', '9000000003', 3);
+INSERT INTO BRANCH VALUES (104, 'AXIS South', 'Bangalore', '9000000004', 4);
+INSERT INTO BRANCH VALUES (105, 'PNB East', 'Kolkata', '9000000005', 5);
+
+
+SQL> select * from BRANCH;
+
+   BR_CODE NAME                                               ADDRESS                                                                                              PHONE            B_CODE
+---------- -------------------------------------------------- ---------------------------------------------------------------------------------------------------- --------------- ----------
+       101 SBI Main                                           Mumbai                                                                                               9000000001    1
+       102 HDFC Central                                       Delhi                                                                                                9000000002    2
+       103 ICICI North                                        Chennai                                                                                              9000000003    3
+       104 AXIS South                                         Bangalore                                                                                            9000000004    4
+       105 PNB East                                           Kolkata                                                                                              9000000005    5
+
+
+CREATE TABLE CUSTOMER (
+    SSN INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Address VARCHAR(100),
+    Phone VARCHAR(15),
+    Age INT
+);
+
+INSERT INTO CUSTOMER VALUES (1001, 'Amit', 'Mumbai', '8888888801', 30);
+INSERT INTO CUSTOMER VALUES (1002, 'Riya', 'Delhi', '8888888802', 28);
+INSERT INTO CUSTOMER VALUES (1003, 'Rahul', 'Chennai', '8888888803', 35);
+INSERT INTO CUSTOMER VALUES (1004, 'Neha', 'Bangalore', '8888888804', 26);
+INSERT INTO CUSTOMER VALUES (1005, 'Karan', 'Kolkata', '8888888805', 40);
+
+SQL> select * from customer;
+
+       SSN NAME                                               ADDRESS                                                                                              PHONE       AGE
+---------- -------------------------------------------------- ---------------------------------------------------------------------------------------------------- --------------- ----------
+      1001 Amit                                               Mumbai                                                                                               8888888801   30
+      1002 Riya                                               Delhi                                                                                                8888888802   28
+      1003 Rahul                                              Chennai                                                                                              8888888803   35
+      1004 Neha                                               Bangalore                                                                                            8888888804   26
+      1005 Karan                                              Kolkata                                                                                              8888888805   40
+
+
+CREATE TABLE ACCOUNT (
+    Acc_No INT PRIMARY KEY,
+    Type VARCHAR(20),
+    Balance DECIMAL(10,2),
+    Br_Code INT,
+    SSN INT,
+    FOREIGN KEY (Br_Code) REFERENCES BRANCH(Br_Code),
+    FOREIGN KEY (SSN) REFERENCES CUSTOMER(SSN)
+);
+
+INSERT INTO ACCOUNT VALUES (5001, 'Savings', 50000, 101, 1001);
+INSERT INTO ACCOUNT VALUES (5002, 'Current', 75000, 102, 1002);
+INSERT INTO ACCOUNT VALUES (5003, 'Savings', 30000, 103, 1003);
+INSERT INTO ACCOUNT VALUES (5004, 'Savings', 45000, 104, 1004);
+INSERT INTO ACCOUNT VALUES (5005, 'Current', 90000, 105, 1005);
+
+SQL> select * from ACCOUNT;
+
+    ACC_NO TYPE                    BALANCE    BR_CODE        SSN
+---------- -------------------- ---------- ---------- ----------
+      5001 Savings                   50000        101       1001
+      5002 Current                   75000        102       1002
+      5003 Savings                   30000        103       1003
+      5004 Savings                   45000        104       1004
+      5005 Current                   90000        105       1005
+
+
+CREATE TABLE LOAN (
+    Loan_No INT PRIMARY KEY,
+    Type VARCHAR(30),
+    Amount DECIMAL(10,2),
+    Duration INT,
+    Interest_Rate DECIMAL(5,2),
+    SSN INT,
+    FOREIGN KEY (SSN) REFERENCES CUSTOMER(SSN)
+);
+
+INSERT INTO LOAN VALUES (7001, 'Home Loan', 500000, 20, 8.5, 1001);
+INSERT INTO LOAN VALUES (7002, 'Car Loan', 300000, 5, 9.0, 1002);
+INSERT INTO LOAN VALUES (7003, 'Education Loan', 200000, 7, 7.5, 1003);
+INSERT INTO LOAN VALUES (7004, 'Personal Loan', 150000, 3, 11.0, 1004);
+INSERT INTO LOAN VALUES (7005, 'Business Loan', 800000, 10, 10.5, 1005);
+
+
+SQL> select * from LOAN;
+
+   LOAN_NO TYPE                               AMOUNT   DURATION INTEREST_RATE        SSN
+---------- ------------------------------ ---------- ---------- ------------- ----------
+      7001 Home Loan                          500000         20           8.5       1001
+      7002 Car Loan                           300000          5             9       1002
+      7003 Education Loan                     200000          7           7.5       1003
+      7004 Personal Loan                      150000          3            11       1004
+      7005 Business Loan                      800000         10          10.5       1005
+
+
+-- Drop all tables in proper order
+DROP TABLE LOAN CASCADE CONSTRAINTS;
+DROP TABLE ACCOUNT CASCADE CONSTRAINTS;
+DROP TABLE BRANCH CASCADE CONSTRAINTS;
+DROP TABLE CUSTOMER CASCADE CONSTRAINTS;
+DROP TABLE BANK CASCADE CONSTRAINTS;
+
+
+DROP TABLE CUST_LOAN CASCADE CONSTRAINTS;
+
+CREATE TABLE CUST_LOAN (
+    Loan_No NUMBER REFERENCES LOAN(Loan_No),
+    SSN NUMBER REFERENCES CUSTOMER(SSN),
+    PRIMARY KEY (Loan_No, SSN)
+);
+
+INSERT INTO CUST_LOAN VALUES (7001, 1001);
+INSERT INTO CUST_LOAN VALUES (7002, 1002); 
+INSERT INTO CUST_LOAN VALUES (7003, 1003); 
+INSERT INTO CUST_LOAN VALUES (7004, 1004); 
+INSERT INTO CUST_LOAN VALUES (7005, 1005); 
+
+SQL> SELECT * FROM CUST_LOAN;
+
+   LOAN_NO        SSN
+---------- ----------
+      7001       1001
+      7002       1002
+      7003       1003
+      7004       1004
+      7005       1005
+
+DROP TABLE CUST_AC CASCADE CONSTRAINTS;
+
+CREATE TABLE CUST_AC (
+    SSN_no NUMBER REFERENCES CUSTOMER(SSN),
+    Acc_No NUMBER REFERENCES ACCOUNT(Acc_No),
+    PRIMARY KEY (SSN_no, Acc_No)
+);
+
+INSERT INTO CUST_AC VALUES (1001, 5006);
+INSERT INTO CUST_AC VALUES (1002, 5006);
+INSERT INTO CUST_AC VALUES (1001, 5007);
+INSERT INTO CUST_AC VALUES (1002, 5007);
+
+SQL> SELECT * FROM CUST_AC;
+
+    SSN_NO     ACC_NO
+---------- ----------
+      1001       5006
+      1001       5007
+      1002       5006
+      1002       5007
+
+1)List the details of customer who have joint account and also have atleast one loan
+
+SELECT DISTINCT C.SSN, C.Name, C.Address, C.Phone, C.Age
+FROM CUSTOMER C, CUST_AC CA, ACCOUNT A, CUST_LOAN CL
+WHERE C.SSN = CA.SSN_no
+  AND CA.Acc_No = A.Acc_No
+  AND C.SSN = CL.SSN
+  AND A.Type = 'Joint';
+  
+ SSN       NAME                                               ADDRESS                                                                                              PHONE       AGE
+---------- -------------------------------------------------- ---------------------------------------------------------------------------------------------------- --------------- ----------
+      1001 Amit                                               Mumbai                                                                                               8888888801   30
+      1002 Riya                                               Delhi                                                                                                8888888802   28
+
+
+2)Write an SQL query to find the minimum and maximum loan amounts from the loan table for loans with an interest rate of less than 15%
+
+SELECT MIN(Amount), MAX(Amount) FROM LOAN WHERE Interest_Rate < 15;
+
+SQL> SELECT MIN(Amount), MAX(Amount) FROM LOAN WHERE Interest_Rate < 15;
+
+MIN(AMOUNT) MAX(AMOUNT)
+----------- -----------
+     150000      800000
+
+
+3)Retrieve the name of the customers who have account in all branches located in a specific city
+
+SELECT C.Name
+FROM CUSTOMER C, CUST_AC CA, ACCOUNT A, BRANCH B
+WHERE C.SSN = CA.SSN_no
+  AND CA.Acc_No = A.Acc_No
+  AND A.Br_Code = B.Br_Code
+  AND B.Address = 'Mumbai'
+GROUP BY C.Name
+HAVING COUNT(DISTINCT B.Br_Code) = 
+       (SELECT COUNT(*) FROM BRANCH WHERE Address = 'Mumbai');
+
+
+NAME
+---------------------
+Amit
+Riya
