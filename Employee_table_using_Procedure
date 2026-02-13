@@ -1,0 +1,84 @@
+SET SERVEROUTPUT ON;
+
+-- Drop table if already exists (ignore error if not)
+BEGIN
+  EXECUTE IMMEDIATE 'DROP TABLE emp26';
+EXCEPTION
+  WHEN OTHERS THEN NULL;
+END;
+/
+
+-- Create table
+CREATE TABLE emp26 (
+  ssn        NUMBER PRIMARY KEY,
+  fname      VARCHAR2(25),
+  mname      VARCHAR2(25),
+  lname      VARCHAR2(25),
+  address    VARCHAR2(25),
+  dno        NUMBER,
+  salary     NUMBER,
+  super_ssn  NUMBER
+);
+
+-- Insert values
+INSERT INTO emp26 VALUES (121,'Ganesh','Mohen','Desai','Belagavi',1,15000,125);
+INSERT INTO emp26 VALUES (125,'Gopal','Maden','Patil','Bagalkot',5,35000,121);
+INSERT INTO emp26 VALUES (122,'Gouri','Pratik','Pujar','Dharwad',1,35000,125);
+COMMIT;
+select * from emp26;
+ set linesize 200;
+
+SQL> select * from emp26;
+
+       SSN FNAME                     MNAME                     LNAME                     ADDRESS                         DNO      SALARY  SUPER_SSN
+---------- ------------------------- ------------------------- ------------------------- ------------------------- ---------- ---------- ----------
+       121 Ganesh                    Mohen                     Desai                     Belagavi                          1       15000        125
+       125 Gopal                     Maden                     Patil                     Bagalkot                          5       35000        121
+       122 Gouri                     Pratik                    Pujar                     Dharwad                           1       35000        125
+
+-- Procedure to find first and last name
+CREATE OR REPLACE PROCEDURE find_ename
+(
+  i_eid        IN  NUMBER,
+  o_first_name OUT VARCHAR2,
+  o_last_name  OUT VARCHAR2
+)
+AS
+BEGIN
+  SELECT fname, lname
+  INTO o_first_name, o_last_name
+  FROM emp26
+  WHERE ssn = i_eid;
+
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('Employee not found');
+END;
+/
+ Procedure created.
+
+-- Procedure to display employee details
+CREATE OR REPLACE PROCEDURE GET_EMP26_DETAILS
+(
+  p_ssn IN NUMBER
+)
+IS
+  x1 VARCHAR2(25);
+  x2 VARCHAR2(25);
+BEGIN
+  find_ename(p_ssn, x1, x2);
+
+  DBMS_OUTPUT.PUT_LINE('Employee First Name: ' || x1);
+  DBMS_OUTPUT.PUT_LINE('Employee Last Name : ' || x2);
+END;
+/
+Procedure created.
+
+-- Execute procedure
+EXEC GET_EMP26_DETAILS(121);
+
+SQL> EXEC GET_EMP26_DETAILS(121);
+Employee First Name: Ganesh
+Employee Last Name : Desai
+
+PL/SQL procedure successfully completed.
