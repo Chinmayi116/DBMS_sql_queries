@@ -1,0 +1,49 @@
+SET SERVEROUTPUT ON
+
+DECLARE
+  CURSOR dept_gender_cursor IS
+    SELECT
+      e.dept_id,
+      SUM(CASE WHEN e.gender = 'Male' THEN 1 ELSE 0 END)   AS male_count,
+      SUM(CASE WHEN e.gender = 'Female' THEN 1 ELSE 0 END) AS female_count
+    FROM employee e
+    GROUP BY e.dept_id;
+
+  v_dept_id       employee.dept_id%TYPE;
+  v_male_count    NUMBER;
+  v_female_count  NUMBER;
+
+BEGIN
+  OPEN dept_gender_cursor;
+
+  LOOP
+    FETCH dept_gender_cursor
+    INTO v_dept_id, v_male_count, v_female_count;
+
+    EXIT WHEN dept_gender_cursor%NOTFOUND;
+
+    DBMS_OUTPUT.PUT_LINE(
+      'Department ID: ' || v_dept_id ||
+      ', Male Count: ' || v_male_count ||
+      ', Female Count: ' || v_female_count
+    );
+  END LOOP;
+
+  CLOSE dept_gender_cursor;
+
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+
+    IF dept_gender_cursor%ISOPEN THEN
+      CLOSE dept_gender_cursor;
+    END IF;
+END;
+/
+
+Department ID: 10, Male Count: 1, Female Count: 1
+Department ID: 20, Male Count: 1, Female Count: 1
+Department ID: 30, Male Count: 0, Female Count: 1
+
+PL/SQL procedure successfully completed.
+Lab6
