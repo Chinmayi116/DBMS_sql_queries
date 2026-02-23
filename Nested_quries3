@@ -1,0 +1,38 @@
+CREATE TABLE Product (
+    pid INT PRIMARY KEY,
+    pname VARCHAR(20),
+    price INT
+);
+
+CREATE TABLE Orders (
+    oid INT PRIMARY KEY,
+    customer_name VARCHAR(20),
+    pid INT,
+    FOREIGN KEY (pid) REFERENCES Product(pid)
+);
+
+INSERT INTO Product VALUES
+(1, 'Laptop', 50000),
+(2, 'Mobile', 20000),
+(3, 'Tablet', 15000),
+(4, 'Printer', 10000);
+
+INSERT INTO Orders VALUES
+(101, 'Ravi', 1),
+(102, 'Anita', 2),
+(103, 'Ravi', 3),
+(104, 'Kiran', 4);
+
+SELECT pname, price
+FROM Product
+WHERE price > (SELECT AVG(price) FROM Product);
+
+SELECT pname
+FROM Product
+WHERE pid IN
+      (SELECT pid FROM Orders WHERE customer_name='Ravi');
+
+SELECT pname, price
+FROM Product
+WHERE price =
+      (SELECT MAX(price) FROM Product);
