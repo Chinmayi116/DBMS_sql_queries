@@ -1,0 +1,10 @@
+SELECT Student.sid, Student.name, Marks.marks
+FROM Student
+LEFT JOIN Marks
+ON Student.sid = Marks.sid;
+
+
+SELECT Employee.emp_id, Employee.emp_name, Department.dept_name
+FROM Employee
+LEFT JOIN Department
+ON Employee.dept_id = Department.dept_id;
