@@ -1,0 +1,28 @@
+CREATE TABLE student(
+   sid INT PRIMARY KEY,
+   name VARCHAR(50),
+   age INT,
+   course VARCHAR(50)
+);
+
+INSERT INTO student VALUES
+(1,'Ravi',20,'BCA'),
+(2,'Anita',21,'MCA'),
+(3,'Rahul',22,'BSc');
+
+SELECT * FROM student;
+
+UPDATE student
+SET course='MCA'
+WHERE sid=1;
+
+ALTER TABLE student
+ADD phone VARCHAR(15);
+
+DELETE FROM student
+WHERE sid=3;
+
+SELECT COUNT(*) FROM student;
+SELECT MAX(age) FROM student;
+SELECT MIN(age) FROM student;
+SELECT AVG(age) FROM student;
