@@ -1,0 +1,20 @@
+CREATE TABLE student
+(
+    sid INT,
+    sname VARCHAR(30),
+    course VARCHAR(20),
+    marks INT
+);
+
+INSERT INTO student VALUES
+(1, 'Ravi', 'BCA', 85);
+
+INSERT INTO student VALUES
+(2, 'Anu', 'MCA', 90);
+
+INSERT INTO student VALUES
+(3, 'Rahul', 'BCom', 75);
+
+SELECT * FROM student;
+
+SELECT sname, marks FROM student;
